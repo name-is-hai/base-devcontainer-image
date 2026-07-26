@@ -1,11 +1,11 @@
-name: Build UBI9 Dev Image
+name: Build UBI10 Dev Image
 
 on:
   push:
     branches:
       - master
     paths:
-      - ".github/workflows/build-ubi9-dev.yml"
+      - ".github/workflows/build-ubi10-dev.yml"
       - "Containerfile"
   workflow_dispatch:
 
