@@ -15,7 +15,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/ubi9-dev
+  IMAGE_NAME: ${{ github.repository_owner }}/ubi10-dev
 
 jobs:
   build:
