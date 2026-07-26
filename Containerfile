@@ -1,10 +1,10 @@
-FROM registry.access.redhat.com/ubi9/ubi:9.8-1784625744
+FROM registry.access.redhat.com/ubi10/ubi:1784668984
 
 ARG REPO_OWNER
 ARG USERNAME=dev
 
-LABEL org.opencontainers.image.title="ubi9-dev"
-LABEL org.opencontainers.image.description="Personal UBI 9 development base image for DevPod/devcontainer-style development"
+LABEL org.opencontainers.image.title="ubi10-dev"
+LABEL org.opencontainers.image.description="Personal UBI 10 development base image for DevPod/devcontainer-style development"
 LABEL org.opencontainers.image.source="https://github.com/${REPO_OWNER}/base-devcontainer-image"
 LABEL org.opencontainers.image.licenses="MIT"
 
