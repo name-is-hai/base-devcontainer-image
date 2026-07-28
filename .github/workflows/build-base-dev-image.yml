@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - ".github/workflows/build-ubi10-dev.yml"
+      - ".github/workflows/build-base-dev-image.yml"
       - "Containerfile"
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/ubi10-dev
+  IMAGE_NAME: ${{ github.repository_owner }}/base-dev-image
 
 jobs:
   build:
@@ -39,7 +39,6 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value=ubi9-dev
             type=sha,prefix=sha-
 
       - name: Build and push image

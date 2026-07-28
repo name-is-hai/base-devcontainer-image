@@ -7,9 +7,8 @@ This repository builds and publishes a reusable UBI 9 development base image to 
 ## Image
 
 ```txt
-ghcr.io/YOUR_USERNAME/ubi9-dev:latest
-ghcr.io/YOUR_USERNAME/ubi9-dev:ubi9-dev
-ghcr.io/YOUR_USERNAME/ubi9-dev:sha-<git-sha>
+ghcr.io/YOUR_USERNAME/base-dev-image:latest
+ghcr.io/YOUR_USERNAME/base-dev-image:sha-<git-sha>
 ```
 
 ## Purpose
@@ -53,7 +52,7 @@ cosmkit-images/
 ├── Containerfile
 └── .github/
     └── workflows/
-        └── build-ubi9-dev.yml
+        └── build-base-dev-image.yml
 ```
 
 ## Build locally
@@ -62,7 +61,7 @@ From the repository root:
 
 ```bash
 podman build \
-  -t ghcr.io/YOUR_USERNAME/ubi9-dev:latest \
+  -t ghcr.io/YOUR_USERNAME/base-dev-image:latest \
   -f Containerfile \
   .
 ```
@@ -76,7 +75,7 @@ podman build \
   --build-arg USERNAME=user \
   --build-arg USER_UID=1000 \
   --build-arg USER_GID=1000 \
-  -t ghcr.io/YOUR_USERNAME/ubi9-dev:latest \
+  -t ghcr.io/YOUR_USERNAME/base-dev-image:latest \
   -f Containerfile \
   .
 ```
@@ -84,7 +83,7 @@ podman build \
 ## Test locally
 
 ```bash
-podman run --rm -it ghcr.io/YOUR_USERNAME/ubi9-dev:latest
+podman run --rm -it ghcr.io/YOUR_USERNAME/base-dev-image:latest
 ```
 
 Inside the container:
@@ -109,18 +108,18 @@ echo "$GHCR_TOKEN" | podman login ghcr.io -u YOUR_USERNAME --password-stdin
 Push the image:
 
 ```bash
-podman push ghcr.io/YOUR_USERNAME/ubi9-dev:latest
+podman push ghcr.io/YOUR_USERNAME/base-dev-image:latest
 ```
 
 ## Automated build
 
-GitHub Actions builds and pushes the image when files under `images/ubi9-dev/` change.
+GitHub Actions builds and pushes the image when files under `images/base-dev-image/` change.
 
 The workflow publishes these tags:
 
 ```txt
 latest
-ubi9-dev
+base-dev-image
 sha-<git-sha>
 ```
 
@@ -139,7 +138,7 @@ Example:
 ```json
 {
   "name": "my-project",
-  "image": "ghcr.io/YOUR_USERNAME/ubi9-dev:latest",
+  "image": "ghcr.io/YOUR_USERNAME/base-dev-image:latest",
   "remoteUser": "user",
   "updateRemoteUserUID": true,
   "workspaceFolder": "/workspaces/my-project"
@@ -151,7 +150,7 @@ For a pinned image:
 ```json
 {
   "name": "my-project",
-  "image": "ghcr.io/YOUR_USERNAME/ubi9-dev:sha-abc1234",
+  "image": "ghcr.io/YOUR_USERNAME/base-dev-image:sha-abc1234",
   "remoteUser": "user",
   "updateRemoteUserUID": true,
   "workspaceFolder": "/workspaces/my-project"
