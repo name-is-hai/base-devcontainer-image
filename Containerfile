@@ -11,17 +11,8 @@ LABEL org.opencontainers.image.licenses="MIT"
 # Install all needed packages at build time as root.
 RUN dnf install -y \
   git \
-  gcc-c++ \
-  make \
-  cmake \
-  gcc \
   zsh \
   neovim \
-  wget \
-  unzip \
-  openssh-clients \
-  procps-ng \
-  hostname \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
