@@ -12,6 +12,8 @@ LABEL org.opencontainers.image.licenses="MIT"
 RUN dnf install -y \
   git \
   zsh \
+  podman-compose\
+  podman \
   neovim \
   && dnf clean all \
   && rm -rf /var/cache/dnf
