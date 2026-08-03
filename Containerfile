@@ -2,6 +2,8 @@ FROM registry.fedoraproject.org/fedora:44
 
 ARG REPO_OWNER
 ARG USERNAME=dev
+ARG USER_UID=1000
+ARG USER_GID=1000
 
 LABEL org.opencontainers.image.title="dev-container"
 LABEL org.opencontainers.image.description="Personal development base image for DevPod/devcontainer-style development"
