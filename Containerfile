@@ -22,8 +22,8 @@ RUN dnf install -y \
 
 RUN groupadd --gid 1000 "${USERNAME}" \
   && useradd \
-  --uid 1000 \
-  --gid 1000 \
+  --uid "${USER_UID}" \
+  --gid "${USER_GID}" \
   --create-home \
   --shell /usr/bin/zsh \
   "${USERNAME}"
@@ -40,7 +40,10 @@ RUN install -d \
   -g "${USER_GID}" \
   "/run/user/${USER_UID}" \
   "/home/${USERNAME}/.config/containers" \
-  "/home/${USERNAME}/.local/share/containers"
+  "/home/${USERNAME}/.local/share/containers" \
+  && chown -R \
+  "${USER_UID}:${USER_GID}" \
+  "/home/${USERNAME}"
 
 RUN printf '%s ALL=(ALL) NOPASSWD: ALL\n' "${USERNAME}" \
   > "/etc/sudoers.d/${USERNAME}" \
