@@ -54,6 +54,4 @@ ENV XDG_RUNTIME_DIR="/run/user/${USER_UID}"
 
 WORKDIR /home/${USERNAME}
 
-USER ${USERNAME}
-
 CMD ["/usr/bin/zsh"]
