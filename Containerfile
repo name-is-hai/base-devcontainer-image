@@ -10,15 +10,18 @@ LABEL org.opencontainers.image.description="Personal development base image for 
 LABEL org.opencontainers.image.source="https://github.com/${REPO_OWNER}/base-devcontainer-image"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# Install all needed packages at build time as root.
+USER root
+
 RUN dnf install -y \
-  git \
-  zsh \
-  podman-compose\
-  podman \
-  neovim \
-  shadow-utils \
+  curl \
   fuse-overlayfs \
+  git \
+  neovim \
+  podman \
+  podman-compose \
+  shadow-utils \
+  zsh \
+  && rpm --setcaps shadow-utils 2>/dev/null || true \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
@@ -32,8 +35,8 @@ RUN groupadd \
   --shell /usr/bin/zsh \
   "${USERNAME}"
 
-# Delegate IDs available inside the outer container namespace.
-# Skip UID/GID 1000 because it belongs to dev.
+# Match the strategy used by Podman's official nested image:
+# delegate container IDs while excluding UID/GID 1000 itself.
 RUN printf '%s\n' \
   "root:1:65535" \
   "${USERNAME}:1:999" \
@@ -55,24 +58,12 @@ RUN install -d \
   "${USER_UID}:${USER_GID}" \
   "/home/${USERNAME}"
 
-# Configure nested rootless storage through fuse-overlayfs.
+# Enable fuse-overlayfs for nested Podman storage.
 RUN sed \
   -e 's|^#mount_program|mount_program|g' \
-  -e '/additionalimage.*/a "/var/lib/shared",' \
   -e 's|^mountopt[[:space:]]*=.*$|mountopt = "nodev,fsync=0"|g' \
   /usr/share/containers/storage.conf \
   > /etc/containers/storage.conf
-
-RUN mkdir -p \
-  /var/lib/shared/overlay-images \
-  /var/lib/shared/overlay-layers \
-  /var/lib/shared/vfs-images \
-  /var/lib/shared/vfs-layers \
-  && touch \
-  /var/lib/shared/overlay-images/images.lock \
-  /var/lib/shared/overlay-layers/layers.lock \
-  /var/lib/shared/vfs-images/images.lock \
-  /var/lib/shared/vfs-layers/layers.lock
 
 RUN curl -fsSL https://mise.run \
   | MISE_INSTALL_PATH=/usr/local/bin/mise sh
@@ -82,5 +73,7 @@ ENV HOME="/home/${USERNAME}" \
   BUILDAH_ISOLATION="chroot"
 
 WORKDIR /home/${USERNAME}
+
+USER ${USERNAME}
 
 CMD ["/usr/bin/zsh"]
