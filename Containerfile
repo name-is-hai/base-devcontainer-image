@@ -17,10 +17,14 @@ RUN dnf install -y \
   podman-compose\
   podman \
   neovim \
+  shadow-utils \
+  fuse-overlayfs \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
-RUN groupadd --gid 1000 "${USERNAME}" \
+RUN groupadd \
+  --gid "${USER_GID}" \
+  "${USERNAME}" \
   && useradd \
   --uid "${USER_UID}" \
   --gid "${USER_GID}" \
@@ -28,32 +32,54 @@ RUN groupadd --gid 1000 "${USERNAME}" \
   --shell /usr/bin/zsh \
   "${USERNAME}"
 
-RUN printf '%s:100000:65536\n' "${USERNAME}" > /etc/subuid \
-  && printf '%s:100000:65536\n' "${USERNAME}" > /etc/subgid
-
-RUN rpm --setcaps shadow-utils \
-  && getcap /usr/bin/newuidmap /usr/bin/newgidmap
+# Delegate IDs available inside the outer container namespace.
+# Skip UID/GID 1000 because it belongs to dev.
+RUN printf '%s\n' \
+  "root:1:65535" \
+  "${USERNAME}:1:999" \
+  "${USERNAME}:1001:64535" \
+  > /etc/subuid \
+  && printf '%s\n' \
+  "root:1:65535" \
+  "${USERNAME}:1:999" \
+  "${USERNAME}:1001:64535" \
+  > /etc/subgid
 
 RUN install -d \
-  -m 0700 \
+  -m 0755 \
   -o "${USER_UID}" \
   -g "${USER_GID}" \
-  "/run/user/${USER_UID}" \
   "/home/${USERNAME}/.config/containers" \
   "/home/${USERNAME}/.local/share/containers" \
   && chown -R \
   "${USER_UID}:${USER_GID}" \
   "/home/${USERNAME}"
 
-RUN printf '%s ALL=(ALL) NOPASSWD: ALL\n' "${USERNAME}" \
-  > "/etc/sudoers.d/${USERNAME}" \
-  && chmod 0440 "/etc/sudoers.d/${USERNAME}"
+# Configure nested rootless storage through fuse-overlayfs.
+RUN sed \
+  -e 's|^#mount_program|mount_program|g' \
+  -e '/additionalimage.*/a "/var/lib/shared",' \
+  -e 's|^mountopt[[:space:]]*=.*$|mountopt = "nodev,fsync=0"|g' \
+  /usr/share/containers/storage.conf \
+  > /etc/containers/storage.conf
+
+RUN mkdir -p \
+  /var/lib/shared/overlay-images \
+  /var/lib/shared/overlay-layers \
+  /var/lib/shared/vfs-images \
+  /var/lib/shared/vfs-layers \
+  && touch \
+  /var/lib/shared/overlay-images/images.lock \
+  /var/lib/shared/overlay-layers/layers.lock \
+  /var/lib/shared/vfs-images/images.lock \
+  /var/lib/shared/vfs-layers/layers.lock
 
 RUN curl -fsSL https://mise.run \
   | MISE_INSTALL_PATH=/usr/local/bin/mise sh
 
-ENV HOME="/home/${USERNAME}"
-ENV XDG_RUNTIME_DIR="/run/user/${USER_UID}"
+ENV HOME="/home/${USERNAME}" \
+  _CONTAINERS_USERNS_CONFIGURED="" \
+  BUILDAH_ISOLATION="chroot"
 
 WORKDIR /home/${USERNAME}
 
